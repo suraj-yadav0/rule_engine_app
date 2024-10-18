@@ -9,20 +9,34 @@ class RuleEngine extends ChangeNotifier {
 
   ASTNode? get combinedRule => _combinedRule;
 
-  ASTNode createRule(String ruleString) {
-    return _parser.parse(ruleString);
+  ASTNode? createRule(String ruleString) {
+    try {
+      return _parser.parse(ruleString);
+    } catch (e) {
+      print('Error creating rule: ${e.toString()}');
+      return null;
+    }
   }
 
+
   void combineRules(List<String> rules) {
-    if (rules.isEmpty) {
+    try {
+      if (rules.isEmpty) {
+        _combinedRule = null;
+      } else if (rules.length == 1) {
+        _combinedRule = createRule(rules[0]);
+      } else {
+        _combinedRule = rules.map((r) => createRule(r))
+            .where((r) => r != null)
+            .reduce((a, b) => 
+              ASTNode(type: 'operator', value: 'AND', left: a, right: b));
+      }
+      notifyListeners();
+    } catch (e) {
+      print('Error combining rules: ${e.toString()}');
       _combinedRule = null;
-    } else if (rules.length == 1) {
-      _combinedRule = createRule(rules[0]);
-    } else {
-      _combinedRule = rules.map(createRule).reduce((a, b) => 
-        ASTNode(type: 'operator', value: 'AND', left: a, right: b));
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   bool evaluateRule(Map<String, dynamic> data) {
