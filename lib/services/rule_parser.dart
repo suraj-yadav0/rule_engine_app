@@ -1,15 +1,33 @@
 // lib/services/rule_parser.dart
 import '../models/ast_node.dart';
 
+
+class RuleParserException implements Exception {
+  final String message;
+  RuleParserException(this.message);
+}
+
 class RuleParser {
+
+
   int _index = 0;
   late String _input;
 
-  ASTNode parse(String input) {
+   ASTNode parse(String input) {
     _input = input.replaceAll(' ', '');
     _index = 0;
-    return _parseExpression();
+    try {
+      ASTNode result = _parseExpression();
+      if (_index < _input.length) {
+        throw RuleParserException('Unexpected characters at end of input');
+      }
+      return result;
+    } catch (e) {
+      throw RuleParserException('Error parsing rule: ${e.toString()}');
+    }
   }
+
+ 
 
   ASTNode _parseExpression() {
     ASTNode left = _parseTerm();
