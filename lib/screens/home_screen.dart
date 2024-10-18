@@ -1,44 +1,104 @@
 // lib/screens/home_screen.dart
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/rule_engine.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _ruleController = TextEditingController();
+  final _dataController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Rule Engine')),
+      appBar: AppBar(title: const Text('Rule Engine')),
       body: Consumer<RuleEngine>(
         builder: (context, ruleEngine, child) {
-          return Column(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  ruleEngine.combineRules([
-                    "((age > 30 AND department = 'Sales') OR (age < 25 AND department = 'Marketing')) AND (salary > 50000 OR experience > 5)",
-                    "((age > 30 AND department = 'Marketing')) AND (salary > 20000 OR experience > 5)",
-                  ]);
-                },
-                child: Text('Combine Rules'),
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _ruleController,
+                    decoration: const InputDecoration(labelText: 'Enter Rule'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a rule';
+                      }
+                      return null;
+                    },
+                  ),
+                 const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        ruleEngine.combineRules([_ruleController.text]);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        const  SnackBar(content: Text('Rule added')),
+                        );
+                      }
+                    },
+                    child: const Text('Add Rule'),
+                  ),
+                const  SizedBox(height: 32),
+                  TextFormField(
+                    controller: _dataController,
+                    decoration: const InputDecoration(labelText: 'Enter Data (JSON format)'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter data';
+                      }
+                      try {
+                        Map<String, dynamic> data = Map<String, dynamic>.from(
+                          Map.from(json.decode(value))
+                        );
+                      } catch (e) {
+                        return 'Invalid JSON format';
+                      }
+                      return null;
+                    },
+                  ),
+                const  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        Map<String, dynamic> data = Map<String, dynamic>.from(
+                          Map.from(json.decode(_dataController.text))
+                        );
+                        bool result = ruleEngine.evaluateRule(data);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Evaluation result: $result')),
+                        );
+                      }
+                    },
+                    child: const Text('Evaluate Rule'),
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  bool result = ruleEngine.evaluateRule({
-                    "age": 35,
-                    "department": "Sales",
-                    "salary": 60000,
-                    "experience": 3,
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Evaluation result: $result')),
-                  );
-                },
-                child: Text('Evaluate Rule'),
-              ),
-            ],
+            ),
           );
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _ruleController.dispose();
+    _dataController.dispose();
+    super.dispose();
   }
 }
