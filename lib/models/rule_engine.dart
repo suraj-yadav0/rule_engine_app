@@ -1,13 +1,27 @@
 // lib/models/rule_engine.dart
 import 'package:flutter/foundation.dart';
+import 'package:rule_engine_app/services/database_helper.dart';
 import 'ast_node.dart';
 import '../services/rule_parser.dart';
 
 class RuleEngine extends ChangeNotifier {
   ASTNode? _combinedRule;
   final RuleParser _parser = RuleParser();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
 
   ASTNode? get combinedRule => _combinedRule;
+
+  RuleEngine() {
+    _loadCombinedRule();
+  }
+
+  Future<void> _loadCombinedRule() async {
+    _combinedRule = await _dbHelper.getCombinedRule();
+    notifyListeners();
+  }
+
+
+ 
 
   ASTNode? createRule(String ruleString) {
     try {
@@ -35,6 +49,7 @@ class RuleEngine extends ChangeNotifier {
     } catch (e) {
       print('Error combining rules: ${e.toString()}');
       _combinedRule = null;
+       _dbHelper.saveCombinedRule(_combinedRule);
       notifyListeners();
     }
   }
