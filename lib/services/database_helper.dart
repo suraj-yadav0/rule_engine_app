@@ -1,4 +1,6 @@
 // lib/services/database_helper.dart
+import 'dart:convert';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/ast_node.dart';
@@ -10,6 +12,24 @@ class DatabaseHelper {
   factory DatabaseHelper() => _instance;
 
   DatabaseHelper._internal();
+
+
+  Future<void> saveCombinedRule(ASTNode? rule) async {
+    Database db = await database;
+    await db.delete('combined_rule');
+    if (rule != null) {
+      await db.insert('combined_rule', {'ast': jsonEncode(rule.toJson())});
+    }
+  }
+
+Future<ASTNode?> getCombinedRule() async {
+    Database db = await database;
+    List<Map<String, dynamic>> maps = await db.query('combined_rule');
+    if (maps.isNotEmpty) {
+      return ASTNode.fromJson(jsonDecode(maps.first['ast']));
+    }
+    return null;
+  }
 
   Future<Database> get database async {
     if (_database != null) return _database!;
