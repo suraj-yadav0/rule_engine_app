@@ -41,17 +41,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       return null;
                     },
                   ),
-                 const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        ruleEngine.combineRules([_ruleController.text]);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                        const  SnackBar(content: Text('Rule added')),
-                        );
-                      }
-                    },
-                    child: const Text('Add Rule'),
+                 const SizedBox(height: 25),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          ruleEngine.combineRules([_ruleController.text]);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                          const  SnackBar(content: Text('Rule added')),
+                          );
+                        }
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.deepPurple),
+                      ),
+                      child: const Text('Add Rule',style: TextStyle(color: Colors.white),),
+                    ),
                   ),
                 const  SizedBox(height: 32),
                   TextFormField(
@@ -71,20 +76,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       return null;
                     },
                   ),
-                const  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        Map<String, dynamic> data = Map<String, dynamic>.from(
-                          Map.from(json.decode(_dataController.text))
-                        );
-                        bool result = ruleEngine.evaluateRule(data);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Evaluation result: $result')),
-                        );
-                      }
-                    },
-                    child: const Text('Evaluate Rule'),
+                const  SizedBox(height: 25),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          Map<String, dynamic> data = Map<String, dynamic>.from(
+                            Map.from(json.decode(_dataController.text))
+                          );
+                          bool result = ruleEngine.evaluateRule(data);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Evaluation result: $result')),
+                          );
+                        }
+                      },
+                     style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.deepPurple),
+                      ),
+                      child: const Text('Evaluate Rule',style: TextStyle(color: Colors.white),),
+                    
+                    ),
                   ),
                 ],
               ),
