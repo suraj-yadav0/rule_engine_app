@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rule_engine_app/screens/ast_viewer_screen.dart';
 import '../models/rule_engine.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Rule Engine')),
+      appBar: AppBar(title: const Text('R U L E   E N G I N E'),centerTitle: true,),
       body: Consumer<RuleEngine>(
         builder: (context, ruleEngine, child) {
           return Padding(
@@ -86,24 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                     },
                     child: const Text('Evaluate Rule'),
-                  ),
-
-
-                     const   SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: ruleEngine.combinedRule != null
-                        ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ASTViewerScreen(
-                                  rootNode: ruleEngine.combinedRule!,
-                                ),
-                              ),
-                            );
-                          }
-                        : null,
-                    child: const Text('View AST'),
                   ),
                 ],
               ),
